@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>GamerZone PK — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;user-select:none;}
+:root{
+  --c0:#050810;--c1:#0c1020;--c2:#131929;--c3:#1a2235;
+  --gold:#f0b429;--gold2:#d49b1f;--gold-dim:rgba(240,180,41,0.12);
+  --white:#f0f4ff;--gray:#8896b3;--dim:#4a5568;
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.12);
+  --orange:#f59e0b;--orange-dim:rgba(245,158,11,0.12);
+  --border:rgba(255,255,255,0.06);
+  --r:10px;--r2:14px;
+  --mono:'Space Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+body{font-family:var(--sans);background:var(--c0);color:var(--white);font-size:14px;line-height:1.5;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--c0);z-index:1000;}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(240,180,41,0.07) 0%,transparent 70%);}
+.login-box{position:relative;width:360px;max-width:calc(100vw - 32px);background:var(--c1);border:1px solid rgba(240,180,41,0.2);border-radius:20px;padding:32px 28px;box-shadow:0 40px 80px rgba(0,0,0,0.6);}
+.l-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.l-mark{width:44px;height:44px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:15px;font-weight:700;color:#000;flex-shrink:0;}
+.l-head h1{font-family:var(--mono);font-size:15px;color:var(--gold);letter-spacing:.5px;}
+.l-head p{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.l-tag{display:inline-block;background:var(--red-dim);border:1px solid rgba(239,68,68,.25);color:var(--red);font-size:10px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:4px;margin-bottom:20px;text-transform:uppercase;}
+.lf{margin-bottom:14px;}
+.lf label{display:block;font-size:10px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.lf input{width:100%;background:var(--c2);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;color:var(--white);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .2s;}
+.lf input:focus{border-color:var(--gold);}
+.l-err{color:var(--red);font-size:12px;margin-top:6px;display:none;}
+.l-err.show{display:block;}
+.l-btn{width:100%;margin-top:8px;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:var(--r);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:opacity .2s;}
+.l-btn:hover{opacity:.9;}
+.l-hint{text-align:center;margin-top:12px;font-size:11px;color:var(--dim);}
+
+/* LOGOUT POPUP */
+#logout-pop{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;}
+#logout-pop.show{display:flex;}
+.logout-box{background:var(--c1);border:1px solid rgba(240,180,41,.25);border-radius:20px;padding:28px 24px;width:300px;max-width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7);animation:popIn .25s ease;}
+@keyframes popIn{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.logout-box .lo-icon{font-size:40px;margin-bottom:12px;}
+.logout-box h3{font-family:var(--mono);font-size:15px;color:var(--white);margin-bottom:6px;}
+.logout-box p{font-size:12px;color:var(--gray);margin-bottom:20px;}
+.logout-btns{display:flex;gap:8px;}
+.logout-btns .btn{flex:1;justify-content:center;}
+
+/* APP SHELL */
+#app{display:none;height:100vh;flex-direction:column;}
+#app.show{display:flex;}
+
+/* TOPBAR */
+.topbar{height:54px;background:var(--c1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;z-index:100;}
+.tb-back{width:32px;height:32px;border-radius:8px;background:var(--c2);border:1px solid var(--border);display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--gray);font-size:15px;transition:all .2s;flex-shrink:0;}
+.tb-back.show{display:flex;}
+.tb-back:hover{color:var(--white);background:var(--c3);}
+.tb-logo{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#000;flex-shrink:0;}
+.tb-title{font-family:var(--mono);font-size:13px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tb-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.tb-name{font-size:11px;color:var(--gold);font-weight:700;background:var(--gold-dim);padding:4px 9px;border-radius:6px;border:1px solid rgba(240,180,41,.2);}
+.tb-out{width:28px;height:28px;border-radius:6px;background:var(--red-dim);border:1px solid rgba(239,68,68,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--red);font-size:13px;}
+.tb-out:hover{background:rgba(239,68,68,.2);}
+
+/* CONTENT */
+.content-area{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.screen.active{display:block;}
+.si{padding:18px;max-width:1080px;margin:0 auto;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+@media(max-width:560px){.kpi-grid{grid-template-columns:1fr 1fr;}}
+.kpi{background:var(--c1);border:1px solid var(--border);border-radius:var(--r2);padding:14px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;}
+.kpi:hover{border-color:rgba(255,255,255,.1);transform:translateY(-1px);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.gd::before{background:var(--gold);}
+.kpi.gr::before{background:var(--green);}
+.kpi.rd::before{background:var(--red);}
+.kpi.bl::before{background:var(--blue);}
+.kpi.or::before{background:var(--orange);}
+.kpi.pu::before{background:#a855f7;}
+.kpi-icon{font-size:20px;margin-bottom:6px;}
+.kpi-val{font-family:var(--mono);font-size:22px;font-weight:700;}
+.kpi-val.gd{color:var(--gold);}
+.kpi-val.gr{color:var(--green);}
+.kpi-val.rd{color:var(--red);}
+.kpi-val.bl{color:var(--blue);}
+.kpi-val.or{color:var(--orange);}
+.kpi-val.pu{color:#a855f7;}
+.kpi-lbl{font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:3px;}
+.kpi-sub{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* QUICK BTNS */
+.qrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;}
+.qb{background:var(--c1);border:1px solid var(--border);border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.qb:hover{border-color:rgba(240,180,41,.3);background:var(--gold-dim);}
+.qb-icon{font-size:18px;margin-bottom:4px;}
+.qb-lbl{font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.3px;}
+
+/* CARDS */
+.card{background:var(--c1);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:14px;overflow:hidden;}
+.ch{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.ct{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:7px;}
+.cb{padding:16px;}
+.cb.np{padding:0;}
+
+/* TABLES */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:480px;}
+th{text-align:left;padding:9px 13px;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;background:var(--c2);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 13px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.012);}
+
+/* BADGES */
+.b{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:5px;font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:.2px;}
+.b-active{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.b-suspended{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(245,158,11,.2);}
+.b-blocked{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+.b-pending{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(240,180,41,.2);}
+.b-approved{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.b-rejected{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+.b-upcoming{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
+.b-live{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.b-completed{background:rgba(255,255,255,.04);color:var(--dim);border:1px solid var(--border);}
+.b-delay{background:rgba(245,158,11,.12);color:var(--orange);border:1px solid rgba(245,158,11,.3);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:var(--sans);}
+.btn:active{transform:scale(.97);}
+.sm{padding:5px 9px;font-size:11px;border-radius:6px;}
+.bg{background:var(--gold);color:#000;}
+.bg:hover{background:var(--gold2);}
+.bG{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.bG:hover{background:rgba(34,197,94,.2);}
+.bR{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+.bR:hover{background:rgba(239,68,68,.2);}
+.bB{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
+.bB:hover{background:rgba(59,130,246,.2);}
+.bN{background:var(--c2);color:var(--gray);border:1px solid var(--border);}
+.bN:hover{color:var(--white);}
+.bO{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(245,158,11,.2);}
+.bO:hover{background:rgba(245,158,11,.2);}
+
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.fi,.fs,.ft{background:var(--c2);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px;color:var(--white);font-family:var(--sans);font-size:13px;outline:none;width:100%;transition:border-color .2s;}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--gold);}
+.ft{min-height:80px;resize:vertical;}
+.fs option{background:var(--c2);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.fr{grid-template-columns:1fr;}}
+
+/* USER CELL */
+.uc{display:flex;align-items:center;gap:8px;}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;color:#000;flex-shrink:0;}
+.un{font-weight:700;font-size:13px;}
+.us{font-size:11px;color:var(--gray);}
+
+/* SEARCH */
+.srch{display:flex;align-items:center;gap:7px;background:var(--c2);border:1.5px solid var(--border);border-radius:var(--r);padding:8px 11px;margin-bottom:12px;}
+.srch input{background:none;border:none;outline:none;color:var(--white);font-size:13px;flex:1;font-family:var(--sans);}
+.srch span{color:var(--dim);}
+
+/* FILTER TABS */
+.ftabs{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+.ft-tab{padding:5px 11px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--c2);color:var(--gray);transition:all .15s;}
+.ft-tab.on{background:var(--gold-dim);border-color:rgba(240,180,41,.3);color:var(--gold);}
+
+/* ACT ROW */
+.acts{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* DETAIL HEADER */
+.dh{background:var(--c1);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.dav{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:20px;font-weight:700;color:#000;flex-shrink:0;}
+.di h2{font-family:var(--mono);font-size:16px;font-weight:700;}
+.di p{font-size:12px;color:var(--gray);margin-top:2px;}
+
+/* INFO BOXES */
+.igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+@media(max-width:480px){.igrid{grid-template-columns:1fr 1fr;}}
+.ib{background:var(--c1);border:1px solid var(--border);border-radius:var(--r);padding:11px;}
+.ib-lbl{font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+.ib-val{font-family:var(--mono);font-size:16px;font-weight:700;margin-top:3px;}
+.ib-val.gd{color:var(--gold);}
+.ib-val.gr{color:var(--green);}
+
+/* DANGER ZONE */
+.dz{background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:var(--r2);padding:14px;margin-top:14px;}
+.dz-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;}
+.dz-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(239,68,68,.1);}
+.dz-row:last-child{border-bottom:none;}
+.dz-desc{font-size:13px;}
+.dz-sub{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* PENDING ITEMS */
+.pi{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);gap:10px;}
+.pi:last-child{border-bottom:none;}
+.pi-left{display:flex;align-items:center;gap:9px;}
+.pi-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.pi-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+
+/* ACTIVITY */
+.ai{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.ai:last-child{border-bottom:none;}
+.ai-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.ai-txt{flex:1;font-size:12px;color:var(--gray);}
+.ai-txt strong{color:var(--white);}
+.ai-time{font-size:10px;color:var(--dim);white-space:nowrap;flex-shrink:0;}
+
+/* PROGRESS BAR */
+.pb{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:4px;}
+.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),#ff9900);}
+
+/* PRIZE CHIPS */
+.pchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.pc{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;}
+.pc1{background:rgba(240,180,41,.15);color:var(--gold);border:1px solid rgba(240,180,41,.3);}
+.pc2{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.2);}
+.pc3{background:rgba(180,120,60,.12);color:#b47c3c;border:1px solid rgba(180,120,60,.2);}
+.pcx{background:rgba(255,255,255,.04);color:var(--dim);border:1px solid var(--border);}
+
+/* TOGGLE */
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.tog-row:last-child{border-bottom:none;}
+.tog-info h4{font-size:13px;font-weight:600;}
+.tog-info p{font-size:11px;color:var(--gray);margin-top:2px;}
+.tog{position:relative;width:40px;height:22px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-sl{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.08);border-radius:22px;transition:.3s;}
+.tog-sl:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:var(--gray);border-radius:50%;transition:.3s;}
+.tog input:checked+.tog-sl{background:var(--gold);}
+.tog input:checked+.tog-sl:before{transform:translateX(18px);background:#000;}
+
+/* PAYMENT CARDS */
+.pay-card{background:var(--c2);border-radius:var(--r);padding:13px;margin-bottom:10px;}
+.pay-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.pay-name{font-family:var(--mono);font-size:12px;font-weight:700;}
+
+/* NOTIF ROW */
+.nr{display:flex;align-items:flex-start;gap:9px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.nr:last-child{border-bottom:none;}
+.nr-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px;}
+.nr-t{font-size:13px;font-weight:700;}
+.nr-s{font-size:11px;color:var(--gray);margin-top:2px;}
+.nr-m{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* EMPTY */
+.empty{padding:36px 20px;text-align:center;color:var(--dim);}
+.empty-i{font-size:32px;margin-bottom:8px;opacity:.35;}
+.empty-t{font-size:13px;}
+
+/* FORM SECTION */
+.fs-box{background:var(--c2);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.fs-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+
+/* CONFIRM */
+#confirm{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;}
+#confirm.show{display:flex;}
+.confirm-box{background:var(--c1);border:1px solid rgba(239,68,68,.3);border-radius:var(--r2);padding:22px;width:300px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.confirm-box h3{font-family:var(--mono);font-size:14px;color:var(--red);margin-bottom:7px;}
+.confirm-box p{font-size:13px;color:var(--gray);margin-bottom:18px;}
+.confirm-btns{display:flex;gap:8px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:18px;right:18px;background:var(--c1);border:1px solid var(--green);color:var(--white);padding:10px 16px;border-radius:9px;font-size:13px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+
+/* IMAGE PREVIEW */
+.dep-photo-preview{max-width:100%;max-height:180px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain;background:var(--c2);display:block;margin-top:8px;}
+
+/* TOURNAMENT PLAYERS LIST */
+.pl-item{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.pl-item:last-child{border-bottom:none;}
+.pl-num{width:24px;height:24px;border-radius:5px;background:var(--c3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;}
+.pl-name{flex:1;font-size:13px;font-weight:600;}
+.pl-ign{font-size:11px;color:var(--gray);}
+
+@media(max-width:640px){
+  .dash-two{grid-template-columns:1fr!important;}
+  .notify-two{grid-template-columns:1fr!important;}
+  .settings-two{grid-template-columns:1fr!important;}
+}
+</style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBz6WZCzz2ylEWQyfUh1yEcfGr_EnVNJ1M",
+    authDomain: "gamerzone-28f87.firebaseapp.com",
+    projectId: "gamerzone-28f87",
+    storageBucket: "gamerzone-28f87.firebasestorage.app",
+    messagingSenderId: "1013694198000",
+    appId: "1:1013694198000:web:010ad0025a2bbf69645235"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.GZ_DB = db;
+  window.GZ_FIREBASE = { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, onSnapshot };
+  window.GZ_ADMIN_READY = true;
+  window.dispatchEvent(new Event('gz_admin_firebase_ready'));
+</script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-bg"></div>
+  <div class="login-box">
+    <div class="l-head">
+      <div class="l-mark">GZ</div>
+      <div><h1>GAMERZONE PK</h1><p>Admin Panel</p></div>
+    </div>
+    <div class="l-tag">🔐 Restricted Access</div>
+    <div class="lf"><label>Username</label><input type="text" id="l-u" placeholder="admin" autocomplete="off"></div>
+    <div class="lf"><label>Password</label><input type="password" id="l-p" placeholder="••••••••"></div>
+    <div class="l-err" id="l-err">❌ Wrong credentials</div>
+    <button class="l-btn" onclick="doLogin()">LOGIN →</button>
+    <div class="l-hint">Default: admin / admin123</div>
+  </div>
+</div>
+
+<!-- LOGOUT POPUP -->
+<div id="logout-pop">
+  <div class="logout-box">
+    <div class="lo-icon">👋</div>
+    <h3>Logout Admin?</h3>
+    <p>You will be signed out of the admin panel. All unsaved changes will be lost.</p>
+    <div class="logout-btns">
+      <button class="btn bN" onclick="closeLogout()">Cancel</button>
+      <button class="btn bR" onclick="confirmLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-back" id="tb-back" onclick="goBack()">←</div>
+    <div class="tb-logo">GZ</div>
+    <div class="tb-title" id="tb-title">Dashboard</div>
+    <div class="tb-right">
+      <div class="tb-name" id="tb-name">Admin</div>
+      <div class="tb-out" onclick="doLogout()" title="Logout">⏻</div>
+    </div>
+  </div>
+
+  <div class="content-area">
+
+    <!-- DASHBOARD -->
+    <div class="screen active" id="s-dash">
+      <div class="si">
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="qrow">
+          <div class="qb" onclick="nav('s-users')"><div class="qb-icon">👥</div><div class="qb-lbl">Users</div></div>
+          <div class="qb" onclick="nav('s-dep')"><div class="qb-icon">⬇</div><div class="qb-lbl">Deposits</div></div>
+          <div class="qb" onclick="nav('s-wd')"><div class="qb-icon">⬆</div><div class="qb-lbl">Withdraw</div></div>
+          <div class="qb" onclick="nav('s-bal')"><div class="qb-icon">💰</div><div class="qb-lbl">Balance</div></div>
+          <div class="qb" onclick="nav('s-tn')"><div class="qb-icon">🏆</div><div class="qb-lbl">Tournaments</div></div>
+          <div class="qb" onclick="nav('s-ulist')"><div class="qb-icon">📋</div><div class="qb-lbl">User List</div></div>
+          <div class="qb" onclick="nav('s-notif')"><div class="qb-icon">🔔</div><div class="qb-lbl">Notify</div></div>
+          <div class="qb" onclick="nav('s-settings')"><div class="qb-icon">⚙</div><div class="qb-lbl">Settings</div></div>
+        </div>
+        <div class="dash-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="card"><div class="ch"><div class="ct">⏳ Pending Actions</div></div><div class="cb" id="dash-pend"></div></div>
+          <div class="card"><div class="ch"><div class="ct">📋 Recent Activity</div></div><div class="cb" id="dash-act"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="screen" id="s-users">
+      <div class="si">
+        <div class="card">
+          <div class="ch"><div class="ct">👥 All Users</div><button class="btn bN sm" onclick="exportCSV()">📤 CSV</button></div>
+          <div class="cb">
+            <div class="srch"><span>🔍</span><input type="text" id="uq" placeholder="Search username, name, mobile..." oninput="renderUsers()"></div>
+            <div class="ftabs" id="uftabs">
+              <div class="ft-tab on" onclick="setUF('all',this)">All</div>
+              <div class="ft-tab" onclick="setUF('active',this)">Active</div>
+              <div class="ft-tab" onclick="setUF('suspended',this)">Suspended</div>
+              <div class="ft-tab" onclick="setUF('blocked',this)">Blocked</div>
+            </div>
+            <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Mobile</th><th>Balance</th><th>W/K/P</th><th>Status</th><th>Actions</th></tr></thead><tbody id="u-tb"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER DETAIL -->
+    <div class="screen" id="s-ud">
+      <div class="si">
+        <div class="dh" id="ud-head"></div>
+        <div class="igrid" id="ud-stats"></div>
+        <!-- Deposit/Withdrawal History for this user -->
+        <div class="card">
+          <div class="ch"><div class="ct">💳 Transaction History</div></div>
+          <div class="cb np"><div class="tw"><table><thead><tr><th>#</th><th>Type</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead><tbody id="ud-txs"></tbody></table></div></div>
+        </div>
+        <div class="card"><div class="ch"><div class="ct">⚙ Admin Controls</div></div><div class="cb" id="ud-ctrl"></div></div>
+        <div class="card">
+          <div class="ch"><div class="ct">✏ Edit User</div></div>
+          <div class="cb">
+            <input type="hidden" id="eu-id">
+            <div class="fr">
+              <div class="fg"><label>Full Name</label><input type="text" class="fi" id="eu-n" placeholder="User's full name"></div>
+              <div class="fg"><label>Username (read-only)</label><input type="text" class="fi" id="eu-u" readonly style="opacity:.4;cursor:not-allowed;"></div>
+              <div class="fg"><label>Mobile Number</label><input type="text" class="fi" id="eu-m" maxlength="11"></div>
+              <div class="fg"><label>Game ID 🔒 (User Only)</label><input type="text" class="fi" id="eu-g" readonly style="opacity:.4;cursor:not-allowed;background:rgba(100,100,100,0.15);"></div>
+              <div class="fg"><label>Reset Password</label><input type="password" class="fi" id="eu-pw" placeholder="Leave blank = keep current"></div>
+              <div class="fg"><label>Status</label><select class="fs" id="eu-s"><option value="active">Active</option><option value="suspended">Suspended</option><option value="blocked">Blocked</option></select></div>
+            </div>
+            <button class="btn bg" onclick="saveUser()">💾 Save Changes</button>
+          </div>
+        </div>
+        <div class="dz">
+          <div class="dz-title">⚠ Danger Zone</div>
+          <div class="dz-row"><div><div class="dz-desc">Suspend Account</div><div class="dz-sub">User cannot login temporarily</div></div><button class="btn bO sm" onclick="qs('suspended')">Suspend</button></div>
+          <div class="dz-row"><div><div class="dz-desc">Block Account</div><div class="dz-sub">Permanently blocked</div></div><button class="btn bR sm" onclick="qs('blocked')">Block</button></div>
+          <div class="dz-row"><div><div class="dz-desc">Activate Account</div><div class="dz-sub">Restore access</div></div><button class="btn bG sm" onclick="qs('active')">Activate</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOSITS -->
+    <div class="screen" id="s-dep">
+      <div class="si">
+        <div class="card">
+          <div class="ch"><div class="ct">⬇ Deposit Requests</div></div>
+          <div class="cb">
+            <div class="ftabs">
+              <div class="ft-tab on" onclick="setDF('all',this)">All</div>
+              <div class="ft-tab" onclick="setDF('pending',this)">Pending</div>
+              <div class="ft-tab" onclick="setDF('approved',this)">Approved</div>
+              <div class="ft-tab" onclick="setDF('rejected',this)">Rejected</div>
+            </div>
+            <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Amount</th><th>Method</th><th>Date</th><th>Photo</th><th>Status</th><th>Actions</th></tr></thead><tbody id="d-tb"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEP DETAIL -->
+    <div class="screen" id="s-dd">
+      <div class="si"><div class="card" id="dd-card"></div></div>
+    </div>
+
+    <!-- WITHDRAWALS -->
+    <div class="screen" id="s-wd">
+      <div class="si">
+        <div class="card">
+          <div class="ch"><div class="ct">⬆ Withdrawal Requests</div></div>
+          <div class="cb">
+            <div class="ftabs">
+              <div class="ft-tab on" onclick="setWF('all',this)">All</div>
+              <div class="ft-tab" onclick="setWF('pending',this)">Pending</div>
+              <div class="ft-tab" onclick="setWF('approved',this)">Approved</div>
+              <div class="ft-tab" onclick="setWF('rejected',this)">Rejected</div>
+            </div>
+            <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Amount</th><th>Method</th><th>Account</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="w-tb"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WD DETAIL -->
+    <div class="screen" id="s-wd2">
+      <div class="si"><div class="card" id="wd-card"></div></div>
+    </div>
+
+    <!-- BALANCE MANAGER -->
+    <div class="screen" id="s-bal">
+      <div class="si">
+        <div class="card">
+          <div class="ch"><div class="ct">💰 Add / Deduct Balance</div></div>
+          <div class="cb">
+            <div class="fr">
+              <div class="fg"><label>Select User</label><select class="fs" id="bal-u"></select></div>
+              <div class="fg"><label>Action</label><select class="fs" id="bal-a"><option value="add">➕ Add (Win / Bonus)</option><option value="deduct">➖ Deduct</option></select></div>
+              <div class="fg"><label>Amount (PKR)</label><input type="number" class="fi" id="bal-amt" placeholder="e.g. 500" min="1"></div>
+              <div class="fg"><label>Note</label><input type="text" class="fi" id="bal-note" placeholder="Match win, bonus..."></div>
+            </div>
+            <button class="btn bg" onclick="applyBal()">Apply Change</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">🥇 Update Wins / Kills / Points</div></div>
+          <div class="cb">
+            <div class="fr">
+              <div class="fg"><label>Select User</label><select class="fs" id="kw-u"></select></div>
+              <div class="fg"><label>Wins +</label><input type="number" class="fi" id="kw-w" placeholder="0" min="0"></div>
+              <div class="fg"><label>Kills +</label><input type="number" class="fi" id="kw-k" placeholder="0" min="0"></div>
+              <div class="fg"><label>Points +</label><input type="number" class="fi" id="kw-p" placeholder="0" min="0"></div>
+            </div>
+            <button class="btn bg" onclick="applyStats()">Update Stats</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">📋 Balance History</div></div>
+          <div class="cb np"><div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Action</th><th>Amount</th><th>Note</th><th>Date</th></tr></thead><tbody id="bh-tb"></tbody></table></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOURNAMENTS -->
+    <div class="screen" id="s-tn">
+      <div class="si">
+        <div class="card">
+          <div class="ch"><div class="ct">➕ Create Tournament</div></div>
+          <div class="cb">
+            <div class="fr">
+              <div class="fg"><label>Title</label><input type="text" class="fi" id="tn-ti" placeholder="e.g. 3:00 PM SOLO VEH-OFF"></div>
+              <div class="fg"><label>Game</label><select class="fs" id="tn-g"><option>Free Fire</option></select></div>
+              <div class="fg"><label>Date</label><input type="date" class="fi" id="tn-d"></div>
+              <div class="fg"><label>Time</label><input type="time" class="fi" id="tn-tm"></div>
+              <div class="fg"><label>Room ID</label><input type="text" class="fi" id="tn-room" placeholder="Enter room ID (can add later)"></div>
+              <div class="fg"><label>Room Password</label><input type="text" class="fi" id="tn-pass" placeholder="Enter room password (can add later)"></div>
+              <div class="fg"><label>Entry Fee (PKR)</label><input type="number" class="fi" id="tn-e" placeholder="50" min="0"></div>
+              <div class="fg"><label>Max Capacity</label><input type="number" class="fi" id="tn-c" placeholder="50" min="1"></div>
+              <div class="fg"><label>Total Prize Pool (PKR)</label><input type="number" class="fi" id="tn-pp" placeholder="2000" min="0"></div>
+              <div class="fg"><label>Type</label><select class="fs" id="tn-ty"><option>Classic</option><option>Clash Squad</option><option>BR Ranked</option></select></div>
+            </div>
+            <div class="fs-box">
+              <div class="fs-title">Prize Distribution (PKR)</div>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                <div class="fg"><label>🏆 1st</label><input type="number" class="fi" id="p1" placeholder="800"></div>
+                <div class="fg"><label>🥈 2nd</label><input type="number" class="fi" id="p2" placeholder="500"></div>
+                <div class="fg"><label>🥉 3rd</label><input type="number" class="fi" id="p3" placeholder="300"></div>
+                <div class="fg"><label>4th</label><input type="number" class="fi" id="p4" placeholder="250"></div>
+                <div class="fg"><label>5th</label><input type="number" class="fi" id="p5" placeholder="150"></div>
+              </div>
+            </div>
+            <button class="btn bg" onclick="createTn()">➕ Create</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">🏆 All Tournaments</div></div>
+          <div class="cb np"><div class="tw"><table><thead><tr><th>#</th><th>Title</th><th>Date/Time</th><th>Entry</th><th>Prize</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tn-tb"></tbody></table></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOURNAMENT PLAYERS -->
+    <div class="screen" id="s-tnp">
+      <div class="si">
+        <div class="card" id="tnp-card"></div>
+      </div>
+    </div>
+
+    <!-- USER LIST (joined tournaments) -->
+    <div class="screen" id="s-ulist">
+      <div class="si">
+        <div class="card">
+          <div class="ch"><div class="ct">📋 User Joined List by Tournament</div></div>
+          <div class="cb">
+            <div class="fg"><label>Select Tournament</label><select class="fs" id="ul-tn" onchange="renderUserList()"></select></div>
+            <div id="ul-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFY -->
+    <div class="screen" id="s-notif">
+      <div class="si">
+        <div class="notify-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="card">
+            <div class="ch"><div class="ct">🔔 Send Notification</div></div>
+            <div class="cb">
+              <div class="fg"><label>Send To</label><select class="fs" id="nf-to" onchange="toggleNfU()"><option value="all">📢 All Users</option><option value="single">👤 Specific User</option></select></div>
+              <div class="fg" id="nf-ur" style="display:none;"><label>User</label><select class="fs" id="nf-u"></select></div>
+              <div class="fg"><label>Title</label><input type="text" class="fi" id="nf-ti" placeholder="Notification title"></div>
+              <div class="fg"><label>Message</label><textarea class="ft" id="nf-msg" placeholder="Write message..."></textarea></div>
+              <button class="btn bg" style="width:100%;" onclick="sendNotif()">📨 Send</button>
+            </div>
+          </div>
+<div class="card">
+            <div class="ch"><div class="ct">📋 Sent Log</div><button class="btn bR sm" onclick="clearNotifLog()">🗑 Clear</button></div>
+            <div class="cb" id="nf-log" style="max-height:55vh;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="s-settings">
+      <div class="si">
+        <div class="settings-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div>
+            <div class="card">
+              <div class="ch"><div class="ct">🔑 Change Admin Password</div></div>
+              <div class="cb">
+                <div class="fg"><label>Current Password</label><input type="password" class="fi" id="ap-c"></div>
+                <div class="fg"><label>New Password (min 6)</label><input type="password" class="fi" id="ap-n"></div>
+                <div class="fg"><label>Confirm New</label><input type="password" class="fi" id="ap-co"></div>
+                <div class="l-err" id="ap-err" style="margin-bottom:8px;"></div>
+                <button class="btn bg" onclick="changeAdminPw()">Update Password</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ch"><div class="ct">⚙ Platform Controls</div></div>
+              <div class="cb" id="plat-ctrl"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">💳 Payment Numbers</div></div>
+            <div class="cb">
+              <div class="pay-card">
+                <div class="pay-card-head"><div class="pay-name">🟢 EasyPaisa</div></div>
+                <div class="fg"><label>Number</label><input type="text" class="fi" id="ep-n" value="03469539948"></div>
+                <div class="fg"><label>Account Name</label><input type="text" class="fi" id="ep-nm" value="ZAHID UR RAHMAN"></div>
+              </div>
+              <div class="pay-card">
+                <div class="pay-card-head"><div class="pay-name">🔴 JazzCash</div></div>
+                <div class="fg"><label>Number</label><input type="text" class="fi" id="jc-n" value="03001234567"></div>
+                <div class="fg"><label>Account Name</label><input type="text" class="fi" id="jc-nm" value="GAMERZONE PK"></div>
+              </div>
+              <div class="pay-card">
+                <div class="pay-card-head"><div class="pay-name">🟣 SadaPay</div></div>
+                <div class="fg"><label>Number</label><input type="text" class="fi" id="sp-n" value="03451234567"></div>
+                <div class="fg"><label>Account Name</label><input type="text" class="fi" id="sp-nm" value="GAMERZONE PK"></div>
+              </div>
+              <button class="btn bg" onclick="savePaymentNumbers()">💾 Save Numbers</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div id="confirm">
+  <div class="confirm-box">
+    <h3 id="c-title">Confirm</h3>
+    <p id="c-msg"></p>
+    <div class="confirm-btns">
+      <button class="btn bN" onclick="closeConfirm()">Cancel</button>
+      <button class="btn bR" id="c-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══ FIREBASE HELPERS ═══
+async function fbPull(){
+  if(!window.GZ_FIREBASE)return;
+  const{collection,getDocs,doc,getDoc}=window.GZ_FIREBASE;
+  const[uSnap,tSnap,cfgSnap,pmSnap,bhSnap,nlSnap,actSnap,admSnap]=await Promise.all([
+    getDocs(collection(window.GZ_DB,'users')),
+    getDocs(collection(window.GZ_DB,'tournaments')),
+    getDoc(doc(window.GZ_DB,'config','platform')),
+    getDoc(doc(window.GZ_DB,'config','payments')),
+    getDoc(doc(window.GZ_DB,'config','balHistory')),
+    getDoc(doc(window.GZ_DB,'config','notifLog')),
+    getDoc(doc(window.GZ_DB,'config','activity')),
+    getDoc(doc(window.GZ_DB,'config','admin')),
+  ]);
+  A.users=uSnap.docs.map(d=>d.data());
+  A.tns=tSnap.docs.map(d=>d.data());
+  if(cfgSnap.exists())localStorage.setItem('gz_cfg',JSON.stringify(cfgSnap.data()));
+  if(pmSnap.exists())localStorage.setItem('gz_pm',JSON.stringify(pmSnap.data()));
+  if(bhSnap.exists())A.balHist=bhSnap.data().list||[];
+  if(nlSnap.exists())A.notifLog=nlSnap.data().list||[];
+  if(actSnap.exists())A.activity=actSnap.data().list||[];
+  if(admSnap.exists()){const d=admSnap.data();A.creds=d.creds||A.creds;}
+  localStorage.setItem('gz_u',JSON.stringify(A.users));
+  localStorage.setItem('gz_tns',JSON.stringify(A.tns));
+}
+async function fbSaveUser(u){
+  if(!window.GZ_FIREBASE)return;
+  const{doc,setDoc}=window.GZ_FIREBASE;
+  await setDoc(doc(window.GZ_DB,'users',String(u.id)),u);
+}
+async function fbSaveTn(t){
+  if(!window.GZ_FIREBASE)return;
+  const{doc,setDoc}=window.GZ_FIREBASE;
+  await setDoc(doc(window.GZ_DB,'tournaments',String(t.id)),t);
+}
+async function fbDelTn(id){
+  if(!window.GZ_FIREBASE)return;
+  const{doc,deleteDoc}=window.GZ_FIREBASE;
+  await deleteDoc(doc(window.GZ_DB,'tournaments',String(id)));
+}
+async function fbSaveMeta(key,data){
+  if(!window.GZ_FIREBASE)return;
+  const{doc,setDoc}=window.GZ_FIREBASE;
+  await setDoc(doc(window.GZ_DB,'config',key),data);
+}
+function startFBListeners(){
+  if(!window.GZ_FIREBASE)return;
+  const{collection,onSnapshot}=window.GZ_FIREBASE;
+  onSnapshot(collection(window.GZ_DB,'users'),snap=>{
+    A.users=snap.docs.map(d=>d.data());
+    localStorage.setItem('gz_u',JSON.stringify(A.users));
+    renderDash();
+    if(document.getElementById('s-users').classList.contains('active'))renderUsers();
+    if(document.getElementById('s-dep').classList.contains('active'))renderDep();
+    if(document.getElementById('s-wd').classList.contains('active'))renderWd();
+    if(A.selUID&&document.getElementById('s-ud').classList.contains('active'))openUD(A.selUID);
+    popSelects();
+  });
+  onSnapshot(collection(window.GZ_DB,'tournaments'),snap=>{
+    A.tns=snap.docs.map(d=>d.data());
+    localStorage.setItem('gz_tns',JSON.stringify(A.tns));
+    renderDash();
+    if(document.getElementById('s-tn').classList.contains('active'))renderTn();
+    populateUListTn();
+  });
+}
+
+// Legacy localStorage keys still used for local read
+const KEY_BH='gz_bh';const KEY_NOTLOG='gz_notlog';const KEY_ACTIVITY='gz_activity';const KEY_ADMIN='gz_admin';
+
+// ═══ STATE ═══
+const A = {
+  creds:{user:'admin',pass:'admin123'},
+  users:[],
+  tns:[],
+  balHist:[],
+  notifLog:[],
+  activity:[],
+  uFilter:'all',
+  dFilter:'all',
+  wFilter:'all',
+  selUID:null,
+};
+
+function loadData(){
+  // Load from localStorage cache (Firebase listeners keep this fresh)
+  const adm=localStorage.getItem(KEY_ADMIN);
+  if(adm){const d=JSON.parse(adm);A.creds=d.creds||A.creds;}
+  A.users=JSON.parse(localStorage.getItem('gz_u')||'[]');
+  A.tns=JSON.parse(localStorage.getItem('gz_tns')||'[]');
+  A.balHist=JSON.parse(localStorage.getItem(KEY_BH)||'[]');
+  A.notifLog=JSON.parse(localStorage.getItem(KEY_NOTLOG)||'[]');
+  A.activity=JSON.parse(localStorage.getItem(KEY_ACTIVITY)||'[]');
+}
+function saveAdminCreds(){
+  localStorage.setItem(KEY_ADMIN,JSON.stringify({creds:A.creds}));
+  fbSaveMeta('admin',{creds:A.creds}).catch(()=>{});
+}
+function saveUsers(){
+  localStorage.setItem('gz_u',JSON.stringify(A.users));
+  // Push each user to Firestore
+  A.users.forEach(u=>fbSaveUser(u).catch(()=>{}));
+}
+function saveTns(){
+  localStorage.setItem('gz_tns',JSON.stringify(A.tns));
+  A.tns.forEach(t=>fbSaveTn(t).catch(()=>{}));
+}
+function saveBH(){
+  localStorage.setItem(KEY_BH,JSON.stringify(A.balHist));
+  fbSaveMeta('balHistory',{list:A.balHist}).catch(()=>{});
+}
+function saveNotifLog(){
+  localStorage.setItem(KEY_NOTLOG,JSON.stringify(A.notifLog));
+  fbSaveMeta('notifLog',{list:A.notifLog}).catch(()=>{});
+}
+function saveActivity(){
+  localStorage.setItem(KEY_ACTIVITY,JSON.stringify(A.activity));
+  fbSaveMeta('activity',{list:A.activity}).catch(()=>{});
+}
+
+// ═══ NAV ═══
+let navStack=['s-dash'];
+const titles={
+  's-dash':'Dashboard','s-users':'Users','s-ud':'User Detail',
+  's-dep':'Deposits','s-dd':'Deposit Detail','s-wd':'Withdrawals',
+  's-wd2':'Withdrawal Detail','s-bal':'Balance Manager','s-tn':'Tournaments',
+  's-tnp':'Tournament Players','s-ulist':'User List','s-notif':'Notifications','s-settings':'Settings'
+};
+
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  navStack.push(id);
+  setTopbar(id);
+  if(id==='s-ulist')populateUListTn();
+}
+function goBack(){
+  if(navStack.length<=1)return;
+  navStack.pop();
+  const prev=navStack[navStack.length-1];
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(prev).classList.add('active');
+  setTopbar(prev);
+}
+function setTopbar(id){
+  document.getElementById('tb-title').textContent=titles[id]||id;
+  const b=document.getElementById('tb-back');
+  navStack.length>1?b.classList.add('show'):b.classList.remove('show');
+}
+
+// ═══ LOGIN/LOGOUT ═══
+async function doLogin(){
+  const u=document.getElementById('l-u').value.trim();
+  const p=document.getElementById('l-p').value;
+  const err=document.getElementById('l-err');
+  if(!u||!p){err.textContent='❌ Please enter username and password';err.classList.add('show');return;}
+  const loginBtn=document.querySelector('.l-btn');
+  if(loginBtn){loginBtn.textContent='Connecting...';loginBtn.disabled=true;}
+  try{
+    if(window.GZ_FIREBASE) await fbPull();
+    loadData();
+  }catch(e){loadData();}
+  finally{if(loginBtn){loginBtn.textContent='Login';loginBtn.disabled=false;}}
+  if(u===A.creds.user&&p===A.creds.pass){
+    err.classList.remove('show');
+    document.getElementById('login-screen').style.display='none';
+    const app=document.getElementById('app');
+    app.classList.add('show');
+    document.getElementById('tb-name').textContent=u;
+    startFBListeners();
+    initAll();
+  } else {
+    err.textContent='❌ Wrong username or password';
+    err.classList.add('show');
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const lp=document.getElementById('l-p');
+  if(lp)lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  const lu=document.getElementById('l-u');
+  if(lu)lu.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+});
+function doLogout(){
+  document.getElementById('logout-pop').classList.add('show');
+}
+function closeLogout(){
+  document.getElementById('logout-pop').classList.remove('show');
+}
+function confirmLogout(){
+  closeLogout();
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('l-u').value='';
+  document.getElementById('l-p').value='';
+  navStack=['s-dash'];
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-dash').classList.add('active');
+  setTopbar('s-dash');
+}
+// Firebase pulls happen on login
+
+// ═══ INIT ═══
+function initAll(){
+  checkAutoTnStatus();
+  renderDash();renderUsers();renderDep();renderWd();
+  renderTn();renderBalHist();popSelects();renderNotifLog();renderPlat();
+  startAutoRefresh();
+}
+function startAutoRefresh(){
+  // Firebase onSnapshot listeners handle real-time sync (set up in startFBListeners)
+  // Fallback local poll for non-Firestore data every 10s
+  setInterval(()=>{
+    A.balHist=JSON.parse(localStorage.getItem(KEY_BH)||'[]');
+    A.notifLog=JSON.parse(localStorage.getItem(KEY_NOTLOG)||'[]');
+    A.activity=JSON.parse(localStorage.getItem(KEY_ACTIVITY)||'[]');
+    renderDash();
+    if(document.getElementById('s-notif').classList.contains('active'))renderNotifLog();
+    checkAutoTnStatus();
+  }, 10000);
+}
+// ═══ AUTO TOURNAMENT STATUS ═══
+function checkAutoTnStatus(){
+  const now=Date.now();
+  let changed=false;
+  A.tns.forEach(t=>{
+    if(t.status==='completed')return;
+    const tMs=new Date(`${t.date}T${t.time}:00`).getTime();
+    const diff=tMs-now; // ms until start
+    const after=now-tMs; // ms after start
+// Auto complete: 20 minutes after start time (check first — highest priority)
+    if(after>=1200000 && t.status!=='completed' && t.status!=='refunded'){
+      t.status='completed'; changed=true;
+    }
+    // Auto live: if room+pass set AND within 10min before to 20min after start
+    else if(t.roomId && t.roomPass && diff<=600000 && diff>-1200000 && t.status!=='live'){
+      t.status='live'; changed=true;
+    }
+    // If no room/pass and tournament time passed: refund
+    else if(!t.roomId && !t.roomPass && diff<=0 && t.status!=='completed' && t.status!=='refunded'){
+      refundTournament(t);
+      t.status='refunded'; changed=true;
+    }
+  });
+  if(changed){saveTns();renderTn();}
+}
+
+function refundTournament(t){
+  const joined=getUsersJoinedTournament(t.id);
+  joined.forEach(u=>{
+    u.balance=(u.balance||0)+t.entry;
+    addUN(u,'🚫 Room Not Created',`Tournament "${t.title}" room was not created. Entry fee Rs.${t.entry} refunded.`);
+  });
+  if(joined.length>0)saveUsers();
+}
+
+function getUsersJoinedTournament(tnId){
+  return A.users.filter(u=>(u.joined||[]).includes(tnId));
+}
+
+// Run auto-status every minute
+setInterval(checkAutoTnStatus, 60000);
+
+// ═══ DASHBOARD ═══
+function renderDash(){
+  const pD=getAllDeposits().filter(d=>d.status==='pending').length;
+  const pW=getAllWds().filter(w=>w.status==='pending').length;
+  const tB=A.users.reduce((s,u)=>s+(u.balance||0),0);
+  const tE=A.users.reduce((s,u)=>s+(u.totalEarnings||0),0);
+  const totalDep=getAllDeposits().filter(d=>d.status==='approved').reduce((s,d)=>s+Number(d.amount||0),0);
+  const totalWd=getAllWds().filter(w=>w.status==='approved').reduce((s,w)=>s+Number(w.amount||0),0);
+  const totalEntry=A.tns.reduce((s,t)=>s+(t.joined||0)*t.entry,0);
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi gd" onclick="nav('s-users')"><div class="kpi-icon">👥</div><div class="kpi-val gd">${A.users.length}</div><div class="kpi-lbl">Total Users</div><div class="kpi-sub">${A.users.filter(u=>u.status==='active'||!u.status).length} active</div></div>
+    <div class="kpi or" onclick="nav('s-dep')"><div class="kpi-icon">⬇</div><div class="kpi-val or">${pD}</div><div class="kpi-lbl">Pending Deposits</div></div>
+    <div class="kpi rd" onclick="nav('s-wd')"><div class="kpi-icon">⬆</div><div class="kpi-val rd">${pW}</div><div class="kpi-lbl">Pending Withdrawals</div></div>
+    <div class="kpi gr" onclick="nav('s-bal')"><div class="kpi-icon">💰</div><div class="kpi-val gr">Rs.${tB.toLocaleString()}</div><div class="kpi-lbl">User Balances</div></div>
+    <div class="kpi bl" onclick="nav('s-tn')"><div class="kpi-icon">🏆</div><div class="kpi-val bl">${A.tns.length}</div><div class="kpi-lbl">Tournaments</div><div class="kpi-sub">${A.tns.filter(t=>t.status==='upcoming').length} upcoming</div></div>
+    <div class="kpi pu" onclick="nav('s-ulist')"><div class="kpi-icon">📋</div><div class="kpi-val pu">${A.users.length}</div><div class="kpi-lbl">User List</div></div>
+    <div class="kpi gr"><div class="kpi-icon">📥</div><div class="kpi-val gr">Rs.${totalDep.toLocaleString()}</div><div class="kpi-lbl">Total Deposited</div></div>
+    <div class="kpi rd"><div class="kpi-icon">📤</div><div class="kpi-val rd">Rs.${totalWd.toLocaleString()}</div><div class="kpi-lbl">Total Withdrawn</div></div>
+    <div class="kpi gd"><div class="kpi-icon">🎮</div><div class="kpi-val gd">Rs.${totalEntry.toLocaleString()}</div><div class="kpi-lbl">Entry Fees Collected</div></div>`;
+  const pd=getAllDeposits().filter(d=>d.status==='pending');
+  const pw=getAllWds().filter(w=>w.status==='pending');
+  const items=[
+...pd.map(d=>({icon:'⬇',bg:'var(--green-dim)',label:`${d.un} — Deposit`,sub:d.date,amt:`Rs.${d.amount||d.amt||0}`,col:'var(--green)',type:'d',id:d.id,uid:d.uid})),
+...pw.map(w=>({icon:'⬆',bg:'var(--red-dim)',label:`${w.un} — Withdrawal`,sub:w.date,amt:`Rs.${w.amount||w.amt||0}`,col:'var(--red)',type:'w',id:w.id,uid:w.uid}))
+  ];
+  document.getElementById('dash-pend').innerHTML=items.length?items.map(i=>`
+    <div class="pi">
+      <div class="pi-left">
+        <div class="pi-icon" style="background:${i.bg};">${i.icon}</div>
+        <div><div style="font-size:13px;font-weight:700;">${i.label}</div><div style="font-size:11px;color:var(--dim);">${i.sub}</div></div>
+      </div>
+      <div class="pi-right">
+        <span style="font-weight:700;color:${i.col};font-size:13px;">${i.amt}</span>
+<button class='btn bG sm' onclick='qa("${i.type}","${i.id}","${i.uid}")'>✓</button>
+      </div>
+    </div>`).join(''):'<div class="empty"><div class="empty-i">🎉</div><div class="empty-t">No pending actions</div></div>';
+  document.getElementById('dash-act').innerHTML=A.activity.slice(0,6).map(a=>`
+    <div class="ai"><div class="ai-dot" style="background:${a.col};"></div><div class="ai-txt">${a.txt}</div><div class="ai-time">${a.time}</div></div>`).join('');
+}
+function qa(t,id,uid){t==='d'?approveDep(uid,id):approveWd(uid,id);}
+
+// ═══ DEPOSIT/WD HELPERS (read from user objects) ═══
+function getAllDeposits(){
+  const res=[];
+  A.users.forEach(u=>(u.txs||[]).forEach(tx=>{if(tx.type==='deposit')res.push({...tx,un:u.username,uid:u.id});}));
+  return res.sort((a,b)=>b.id-a.id);
+}
+function getAllWds(){
+  const res=[];
+  A.users.forEach(u=>(u.txs||[]).forEach(tx=>{if(tx.type==='withdraw')res.push({...tx,un:u.username,uid:u.id});}));
+  return res.sort((a,b)=>b.id-a.id);
+}
+// ═══ USERS ═══
+function renderUsers(){
+  const q=(document.getElementById('uq')?.value||'').toLowerCase();
+  const list=A.users.filter(u=>{
+    const mq=!q||(u.username||'').toLowerCase().includes(q)||(u.name||'').toLowerCase().includes(q)||(u.phone||'').includes(q);
+    const st=u.status||'active';
+    const mf=A.uFilter==='all'||st===A.uFilter;
+    return mq&&mf;
+  });
+  document.getElementById('u-tb').innerHTML=list.length?list.map((u,i)=>`
+    <tr>
+      <td style="color:var(--dim);">${i+1}</td>
+      <td><div class="uc"><div class="av">${(u.username||'?')[0]}</div><div><div class="un">${u.username}</div><div class="us">${u.name||''}</div></div></div></td>
+      <td style="font-size:12px;">${u.phone||''}</td>
+      <td><span style="color:var(--gold);font-weight:700;">Rs.${u.balance||0}</span></td>
+      <td style="font-size:12px;color:var(--gray);">${u.wins||0}W/${u.kills||0}K/${u.points||0}P</td>
+      <td>${bdg(u.status||'active')}</td>
+      <td><button class="btn bB sm" onclick="openUD(${u.id})">View →</button></td>
+    </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--dim);padding:28px;">No users found</td></tr>';
+}
+function setUF(f,el){A.uFilter=f;document.querySelectorAll('#uftabs .ft-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderUsers();}
+
+function openUD(id){
+  A.selUID=id;
+  const u=A.users.find(x=>x.id===id);if(!u)return;
+  document.getElementById('eu-id').value=u.id;
+  document.getElementById('eu-u').value=u.username;
+  document.getElementById('eu-n').value=u.name||'';
+  document.getElementById('eu-m').value=u.phone||'';
+  document.getElementById('eu-g').value=u.gameId||'';
+  document.getElementById('eu-pw').value='';
+  document.getElementById('eu-s').value=u.status||'active';
+  document.getElementById('ud-head').innerHTML=`
+    <div class="dav">${(u.username||'?')[0]}</div>
+    <div class="di"><h2>${u.username}</h2><p>${u.name||''} · ${u.phone||''}</p><div style="margin-top:5px;">${bdg(u.status||'active')}</div></div>
+    <div style="margin-left:auto;text-align:right;"><div style="font-size:10px;color:var(--dim);">Registered</div><div style="font-size:13px;font-weight:700;">${u.reg?new Date(u.reg).toLocaleDateString():'-'}</div></div>`;
+  document.getElementById('ud-stats').innerHTML=`
+    <div class="ib"><div class="ib-lbl">Balance</div><div class="ib-val gd">Rs.${u.balance||0}</div></div>
+    <div class="ib"><div class="ib-lbl">Total Earnings</div><div class="ib-val gr">Rs.${u.totalEarnings||0}</div></div>
+    <div class="ib"><div class="ib-lbl">Wins</div><div class="ib-val gd">${u.wins||0}</div></div>
+    <div class="ib"><div class="ib-lbl">Kills</div><div class="ib-val gd">${u.kills||0}</div></div>
+    <div class="ib"><div class="ib-lbl">Points</div><div class="ib-val gd">${u.points||0}</div></div>
+    <div class="ib"><div class="ib-lbl">Game ID</div><div class="ib-val" style="font-size:14px;">${u.gameId||'—'}</div></div>`;
+  // Transaction history
+  const txs=(u.txs||[]).slice().reverse();
+  document.getElementById('ud-txs').innerHTML=txs.length?txs.map((tx,i)=>`
+    <tr>
+      <td style="color:var(--dim);">${i+1}</td>
+      <td>${tx.type==='deposit'?'⬇ Deposit':'⬆ Withdrawal'}</td>
+      <td><span style="color:var(--gold);font-weight:700;">Rs.${tx.amount||tx.amt||0}</span></td>
+      <td>${tx.method||'-'}</td>
+      <td style="font-size:11px;color:var(--dim);">${tx.date||''}</td>
+      <td>${bdg(tx.status||'pending')}</td>
+    </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:20px;">No transactions</td></tr>';
+  document.getElementById('ud-ctrl').innerHTML=`
+    <div class="acts" style="margin-bottom:10px;">
+      <button class="btn bB" onclick="nav('s-bal');setTimeout(()=>{document.getElementById('bal-u').value=${u.id};},100)">💰 Adjust Balance</button>
+      <button class="btn bB" onclick="sendTo(${u.id})">🔔 Send Notification</button>
+    </div>
+    <div style="font-size:12px;color:var(--dim);">Deposits: ${(u.txs||[]).filter(t=>t.type==='deposit').length} · Withdrawals: ${(u.txs||[]).filter(t=>t.type==='withdraw').length} · Tournaments Joined: ${(u.joined||[]).length}</div>`;
+  nav('s-ud');
+}
+function saveUser(){
+  const id=parseInt(document.getElementById('eu-id').value);
+  const u=A.users.find(x=>x.id===id);if(!u)return;
+  // Admin can change phone number
+  const newPhone=document.getElementById('eu-m').value.trim();
+  if(newPhone) u.phone=newPhone;
+  // Admin can change status
+  u.status=document.getElementById('eu-s').value;
+  // Admin can reset password (if filled)
+  const pw=document.getElementById('eu-pw').value;
+  if(pw&&pw.length>=6) u.password=pw;
+  else if(pw&&pw.length>0&&pw.length<6){toast('❌ Password must be at least 6 characters','var(--red)');return;}
+  // Name field — admin can also update it
+  const newName=document.getElementById('eu-n').value.trim();
+  if(newName) u.name=newName;
+  saveUsers();renderUsers();renderDash();popSelects();
+  if(document.getElementById('s-ud').classList.contains('active'))openUD(id);
+  addAct(`User <strong>${u.username}</strong> updated`,'var(--blue)');
+  toast('✅ User updated successfully!');
+}
+function qs(s){if(A.selUID){setStatus(A.selUID,s);}}
+function setStatus(id,s){
+  const u=A.users.find(x=>x.id===id);if(!u)return;
+  u.status=s;saveUsers();renderUsers();renderDash();
+  if(document.getElementById('s-ud').classList.contains('active'))openUD(id);
+  addAct(`Status of <strong>${u.username}</strong> → <strong>${s}</strong>`,s==='active'?'var(--green)':'var(--red)');
+  toast(`${u.username} → ${s}`);
+}
+function confirmDel(){
+  showConfirm('Delete User','This cannot be undone. Delete permanently?',()=>{
+    A.users=A.users.filter(u=>u.id!==A.selUID);
+    saveUsers();renderUsers();renderDash();popSelects();goBack();toast('🗑 User deleted.');
+  });
+}
+function exportCSV(){
+  const q=v=>`"${String(v||'').replace(/"/g,'""')}"`;
+  let c='Username,Name,Mobile,Balance,Wins,Kills,Status\n';
+  A.users.forEach(u=>c+=`${q(u.username)},${q(u.name)},${q(u.phone)},${q(u.balance||0)},${q(u.wins||0)},${q(u.kills||0)},${q(u.status||'active')}\n`);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='users.csv';a.click();
+  toast('📤 Exported!');
+}
+// ═══ DEPOSITS ═══
+function renderDep(){
+  const all=getAllDeposits();
+  const list=A.dFilter==='all'?all:all.filter(d=>d.status===A.dFilter);
+  document.getElementById('d-tb').innerHTML=list.length?list.map((d,i)=>`
+    <tr>
+      <td style="color:var(--dim);">${i+1}</td>
+      <td><div class="uc"><div class="av">${d.un[0]}</div><div class="un">${d.un}</div></div></td>
+      <td><span style="color:var(--gold);font-weight:700;">Rs.${d.amount||d.amt||0}</span></td>
+      <td>${d.method||'-'}</td>
+      <td style="font-size:11px;color:var(--dim);">${d.date||''}</td>
+      <td>${d.photo?`<img src="${d.photo}" style="width:36px;height:36px;object-fit:cover;border-radius:5px;cursor:pointer;border:1px solid var(--border);" onclick="openDD('${d.uid}','${d.id}')">`:'-'}</td>
+      <td>${bdg(d.status||'pending')}</td>
+      <td><div class="acts">
+        <button class="btn bB sm" onclick="openDD('${d.uid}','${d.id}')">View</button>
+        ${d.status==='pending'?`<button class="btn bG sm" onclick="approveDep('${d.uid}','${d.id}')">✓</button><button class="btn bR sm" onclick="rejectDep('${d.uid}','${d.id}')">✕</button>`:''}
+      </div></td>
+    </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--dim);padding:28px;">No deposits</td></tr>';
+}
+function setDF(f,el){A.dFilter=f;document.querySelectorAll('#s-dep .ft-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderDep();}
+
+function openDD(uid,txId){
+  const u=A.users.find(x=>x.id==uid);if(!u)return;
+  const d=(u.txs||[]).find(x=>x.id==txId);if(!d)return;
+  document.getElementById('dd-card').innerHTML=`
+    <div class="ch"><div class="ct">⬇ Deposit — ${u.username}</div></div>
+    <div class="cb">
+      <div class="igrid">
+        <div class="ib"><div class="ib-lbl">User</div><div class="ib-val" style="font-size:15px;">${u.username}</div></div>
+        <div class="ib"><div class="ib-lbl">Amount</div><div class="ib-val gd">Rs.${d.amount||d.amt||0}</div></div>
+        <div class="ib"><div class="ib-lbl">Method</div><div class="ib-val" style="font-size:15px;">${d.method||'-'}</div></div>
+        <div class="ib"><div class="ib-lbl">Status</div><div class="ib-val" style="font-size:14px;margin-top:6px;">${bdg(d.status||'pending')}</div></div>
+        <div class="ib"><div class="ib-lbl">Date</div><div class="ib-val" style="font-size:12px;">${d.date||''}</div></div>
+        <div class="ib"><div class="ib-lbl">User Balance</div><div class="ib-val gr">Rs.${u.balance||0}</div></div>
+      </div>
+      ${d.photo?`<div style="margin-bottom:14px;"><div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Payment Screenshot</div><img src="${d.photo}" class="dep-photo-preview"></div>`:'<div style="color:var(--dim);font-size:12px;margin-bottom:14px;">No photo attached</div>'}
+      ${d.status==='pending'?`<div class="acts">
+        <button class="btn bG" onclick="approveDep('${u.id}','${d.id}');goBack()">✅ Approve — Credit Rs.${d.amount||d.amt||0}</button>
+        <button class="btn bR" onclick="rejectDep('${u.id}','${d.id}');goBack()">❌ Reject</button>
+      </div>`:`<div style="color:var(--dim);font-size:13px;">Already ${d.status}</div>`}
+    </div>`;
+  nav('s-dd');
+}
+function approveDep(uid,txId){
+  const u=A.users.find(x=>x.id==uid);if(!u)return;
+  const d=(u.txs||[]).find(x=>x.id==txId);
+  if(!d){toast('Transaction not found','var(--red)');return;}
+  if(d.status!=='pending'){toast('Already processed','var(--red)');return;}
+  d.status='approved';
+  const amt=Number(d.amount||d.amt||0);
+  u.balance=(u.balance||0)+amt;
+  addUN(u,'💰 Deposit Approved',`Rs.${amt} credited to your account via ${d.method||''}.`);
+  saveUsers();renderDep();renderDash();
+  addAct(`Deposit <strong>Rs.${amt}</strong> approved for <strong>${u.username}</strong>`,'var(--green)');
+  toast(`✅ Rs.${amt} added to ${u.username}`);
+}
+function rejectDep(uid,txId){
+  const u=A.users.find(x=>x.id==uid);if(!u)return;
+  const d=(u.txs||[]).find(x=>x.id==txId);if(!d)return;
+  if(d.status!=='pending'){toast('Already processed','var(--red)');return;}
+  d.status='rejected';
+  const amt=Number(d.amount||d.amt||0);
+  addUN(u,'❌ Deposit Rejected',`Your deposit of Rs.${amt} via ${d.method||''} was rejected. Contact support if needed.`);
+  saveUsers();renderDep();renderDash();
+  addAct(`Deposit <strong>Rs.${amt}</strong> rejected for <strong>${u.username}</strong>`,'var(--red)');
+  toast('❌ Deposit rejected');
+}
+
+// ═══ WITHDRAWALS ═══
+function renderWd(){
+  const all=getAllWds();
+  const list=A.wFilter==='all'?all:all.filter(w=>w.status===A.wFilter);
+  document.getElementById('w-tb').innerHTML=list.length?list.map((w,i)=>`
+    <tr>
+      <td style="color:var(--dim);">${i+1}</td>
+      <td><div class="uc"><div class="av">${w.un[0]}</div><div class="un">${w.un}</div></div></td>
+      <td><span style="color:var(--gold);font-weight:700;">Rs.${w.amount||w.amt||0}</span></td>
+      <td>${w.method||'-'}</td>
+      <td style="font-size:12px;">${w.account||''}<br><span style="color:var(--dim);font-size:10px;">${w.holder||''}</span></td>
+      <td style="font-size:11px;color:var(--dim);">${w.date||''}</td>
+      <td>${bdg(w.status||'pending')}</td>
+      <td><div class="acts">
+        <button class="btn bB sm" onclick="openWD('${w.uid}','${w.id}')">View</button>
+        ${w.status==='pending'?`<button class="btn bG sm" onclick="approveWd('${w.uid}','${w.id}')">✓</button><button class="btn bR sm" onclick="rejectWd('${w.uid}','${w.id}')">✕</button>`:''}
+      </div></td>
+    </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--dim);padding:28px;">No withdrawals</td></tr>';
+}
+function setWF(f,el){A.wFilter=f;document.querySelectorAll('#s-wd .ft-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderWd();}
+
+function openWD(uid,txId){
+  const u=A.users.find(x=>x.id==uid);if(!u)return;
+  const w=(u.txs||[]).find(x=>x.id==txId);if(!w)return;
+  document.getElementById('wd-card').innerHTML=`
+    <div class="ch"><div class="ct">⬆ Withdrawal — ${u.username}</div></div>
+    <div class="cb">
+      <div class="igrid">
+        <div class="ib"><div class="ib-lbl">User</div><div class="ib-val" style="font-size:15px;">${u.username}</div></div>
+        <div class="ib"><div class="ib-lbl">Amount</div><div class="ib-val gd">Rs.${w.amount||w.amt||0}</div></div>
+        <div class="ib"><div class="ib-lbl">Method</div><div class="ib-val" style="font-size:15px;">${w.method||'-'}</div></div>
+        <div class="ib"><div class="ib-lbl">Account No.</div><div class="ib-val" style="font-size:14px;">${w.account||'-'}</div></div>
+        <div class="ib"><div class="ib-lbl">Holder Name</div><div class="ib-val" style="font-size:14px;">${w.holder||'-'}</div></div>
+        <div class="ib"><div class="ib-lbl">User Balance</div><div class="ib-val gr">Rs.${u.balance||0}</div></div>
+        <div class="ib"><div class="ib-lbl">Status</div><div class="ib-val" style="font-size:14px;margin-top:6px;">${bdg(w.status||'pending')}</div></div>
+        <div class="ib"><div class="ib-lbl">Date</div><div class="ib-val" style="font-size:12px;">${w.date||''}</div></div>
+      </div>
+      ${w.status==='pending'?`<div class="acts">
+        <button class="btn bG" onclick="approveWd('${u.id}','${w.id}');goBack()">✅ Approve & Mark Paid</button>
+        <button class="btn bR" onclick="rejectWd('${u.id}','${w.id}');goBack()">❌ Reject & Refund</button>
+      </div>`:`<div style="color:var(--dim);font-size:13px;">Already ${w.status}</div>`}
+    </div>`;
+  nav('s-wd2');
+}
+function approveWd(uid,txId){
+  const u=A.users.find(x=>x.id==uid);if(!u)return;
+  const w=(u.txs||[]).find(x=>x.id==txId);
+  if(!w){toast('Transaction not found','var(--red)');return;}
+  if(w.status!=='pending'){toast('Already processed','var(--red)');return;}
+  const amt=Number(w.amount||w.amt||0);
+  w.status='approved';
+  addUN(u,'💸 Withdrawal Approved',`Rs.${amt} via ${w.method||''} has been processed successfully.`);
+  saveUsers();renderWd();renderDash();
+  addAct(`Withdrawal <strong>Rs.${amt}</strong> approved for <strong>${u.username}</strong>`,'var(--green)');
+  toast('✅ Withdrawal approved');
+}
+function rejectWd(uid,txId){
+  const u=A.users.find(x=>x.id==uid);if(!u)return;
+  const w=(u.txs||[]).find(x=>x.id==txId);if(!w)return;
+  if(w.status!=='pending'){toast('Already processed','var(--red)');return;}
+  w.status='rejected';
+  const amt=Number(w.amount||w.amt||0);
+  // Refund balance back since we deducted on request
+  u.balance=(u.balance||0)+amt;
+  addUN(u,'❌ Withdrawal Rejected',`Your withdrawal of Rs.${amt} was rejected. Amount refunded to your balance.`);
+  saveUsers();renderWd();renderDash();
+  addAct(`Withdrawal <strong>Rs.${amt}</strong> rejected for <strong>${u.username}</strong>`,'var(--red)');
+  toast('❌ Withdrawal rejected — balance refunded');
+}
+
+// ═══ BALANCE ═══
+function popSelects(){
+  const opts=A.users.length?A.users.map(u=>`<option value="${u.id}">${u.username} (Rs.${u.balance||0})</option>`).join(''):'<option>No users yet</option>';
+  ['bal-u','kw-u','nf-u'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+function applyBal(){
+  const uid=parseInt(document.getElementById('bal-u').value);
+  const act=document.getElementById('bal-a').value;
+  const amt=parseInt(document.getElementById('bal-amt').value);
+  const note=document.getElementById('bal-note').value||'-';
+  if(!amt||amt<=0){toast('Enter valid amount','var(--red)');return;}
+  const u=A.users.find(x=>x.id===uid);if(!u)return;
+  if(act==='add'){
+    u.balance=(u.balance||0)+amt;
+    u.totalEarnings=(u.totalEarnings||0)+amt;
+    addUN(u,'💰 Balance Added',`Rs.${amt} added. (${note})`);
+    addAct(`<strong>Rs.${amt}</strong> added to <strong>${u.username}</strong>`,'var(--gold)');
+  } else {
+    if((u.balance||0)<amt){toast('❌ Insufficient balance!','var(--red)');return;}
+    u.balance=(u.balance||0)-amt;
+    // Also decrease totalEarnings when deducting balance
+    u.totalEarnings=Math.max(0,(u.totalEarnings||0)-amt);
+    addUN(u,'💸 Balance Deducted',`Rs.${amt} deducted. (${note})`);
+    addAct(`<strong>Rs.${amt}</strong> deducted from <strong>${u.username}</strong>`,'var(--orange)');
+  }
+  A.balHist.unshift({un:u.username,act:act==='add'?'➕ Add':'➖ Deduct',amt,note,date:now()});
+  document.getElementById('bal-amt').value='';document.getElementById('bal-note').value='';
+  saveUsers();saveBH();renderBalHist();popSelects();renderUsers();renderDash();
+  toast(`✅ Balance updated for ${u.username}`);
+}
+function applyStats(){
+  const uid=parseInt(document.getElementById('kw-u').value);
+  const w=parseInt(document.getElementById('kw-w').value)||0;
+  const k=parseInt(document.getElementById('kw-k').value)||0;
+  const p=parseInt(document.getElementById('kw-p').value)||0;
+  const u=A.users.find(x=>x.id===uid);if(!u)return;
+  u.wins=(u.wins||0)+w;u.kills=(u.kills||0)+k;u.points=(u.points||0)+p;
+  ['kw-w','kw-k','kw-p'].forEach(id=>document.getElementById(id).value='');
+  saveUsers();renderUsers();toast(`✅ Stats: ${u.username} +${w}W +${k}K +${p}P`);
+}
+function renderBalHist(){
+  document.getElementById('bh-tb').innerHTML=A.balHist.length?A.balHist.map((b,i)=>`
+    <tr><td style="color:var(--dim);">${i+1}</td><td>${b.un}</td><td>${b.act}</td><td style="color:var(--gold);font-weight:700;">Rs.${b.amt}</td><td style="color:var(--dim);font-size:12px;">${b.note}</td><td style="font-size:11px;color:var(--dim);">${b.date}</td></tr>`).join(''):
+    '<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:20px;">No history</td></tr>';
+}
+
+// ═══ TOURNAMENTS ═══
+function renderTn(){
+  // Run auto status before render
+  checkAutoTnStatus();
+  const tbody = document.getElementById('tn-tb');
+  tbody.innerHTML = A.tns.length ? A.tns.map((t,i)=>{
+    const pct=Math.round((t.joined||0)/t.cap*100);
+    return `<tr>
+      <td style="color:var(--dim);">${i+1}</td>
+      <td style="font-weight:700;max-width:150px;font-size:13px;">${t.title}</td>
+      <td style="font-size:11px;">${t.date}<br><span style="color:var(--dim);">${t.time}</span></td>
+      <td>Rs.${t.entry}</td>
+      <td style="color:var(--gold);font-weight:700;">Rs.${t.pool}</td>
+      <td><div style="font-size:12px;">${t.joined||0}/${t.cap}</div><div class="pb"><div class="pf" style="width:${pct}%"></div></div></td>
+      <td>${bdg(t.status)}</td>
+<td><div class="acts">
+        ${t.status==='upcoming'?`<button class="btn bG sm" onclick="setTnS(${t.id},'live')">▶ Live</button>`:''}
+        ${t.status==='live'?`<button class="btn bN sm" onclick="setTnS(${t.id},'completed')">🏁 End</button>`:''}
+        <button class="btn bO sm" onclick="openTnEdit(${t.id})">✏ Edit</button>
+        <button class="btn bB sm" onclick="openTnPlayers(${t.id})">👥</button>
+        <button class="btn bR sm" onclick="delTn(${t.id})">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--dim);padding:28px;">No tournaments</td></tr>';
+}
+
+function createTn(){
+  const ti=document.getElementById('tn-ti').value.trim();
+  const d=document.getElementById('tn-d').value;
+  const tm=document.getElementById('tn-tm').value;
+  if(!ti||!d||!tm){toast('Fill title, date, time','var(--red)');return;}
+  const entry=parseInt(document.getElementById('tn-e').value)||50;
+  const cap=parseInt(document.getElementById('tn-c').value)||50;
+  const pool=parseInt(document.getElementById('tn-pp').value)||0;
+  const prizes=[1,2,3,4,5].map(n=>parseInt(document.getElementById('p'+n).value)||0);
+  const roomId=document.getElementById('tn-room').value.trim();
+  const roomPass=document.getElementById('tn-pass').value.trim();
+  const tnId=Date.now();
+
+  // Determine initial status
+  let status='upcoming';
+  const tMs=new Date(`${d}T${tm}`).getTime();
+  const now=Date.now();
+  if(roomId&&roomPass&&(tMs-now)<=600000)status='live';
+A.tns.push({id:tnId,title:ti,game:document.getElementById('tn-g').value,date:d,time:tm,entry,cap,pool,prizes,joined:0,status,type:document.getElementById('tn-ty').value,roomId,roomPass});
+  ['tn-ti','tn-d','tn-tm','tn-e','tn-c','tn-pp','p1','p2','p3','p4','p5','tn-room','tn-pass'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+// Room notification will be sent automatically when tournament goes live via setTnS()
+  saveTns();renderTn();renderDash();populateUListTn();
+  addAct(`Tournament <strong>${ti}</strong> created`,'var(--blue)');
+  toast('✅ Tournament created!');
+}
+
+function sendRoomNotifToJoined(tnId, title, roomId, roomPass){
+  // Send to all users who joined this tournament
+  const joined=getUsersJoinedTournament(tnId);
+  joined.forEach(u=>{
+    addUN(u,`🎮 Room Ready: ${title}`,`Room ID: ${roomId}\nPassword: ${roomPass}\nJoin 10 minutes before match time!`);
+  });
+  if(joined.length>0)saveUsers();
+}
+
+function setTnS(id,s){
+  const t=A.tns.find(x=>x.id===id);
+  if(s==='live'&&(!t.roomId||!t.roomPass)){
+    toast('❌ Add room ID and password first','var(--red)');return;
+  }
+  if(t){
+    t.status=s;
+    if(s==='live'){
+      // Send room ID/pass to all who joined
+      sendRoomNotifToJoined(t.id, t.title, t.roomId, t.roomPass);
+    }
+    saveTns();renderTn();renderDash();toast(`Tournament → ${s}`);
+  }
+}
+
+function delTn(id){
+  showConfirm('Delete Tournament','Delete this tournament? It will be removed from user side too.',()=>{
+    const t=A.tns.find(x=>x.id===id);
+    if(t){
+      // Refund users if not completed
+      if(t.status!=='completed'){
+        const joined=getUsersJoinedTournament(id);
+        joined.forEach(u=>{
+          u.balance=(u.balance||0)+t.entry;
+          addUN(u,'🗑 Tournament Deleted',`"${t.title}" was deleted by admin. Entry fee Rs.${t.entry} refunded.`);
+        });
+        if(joined.length>0)saveUsers();
+      }
+      // Remove from users' joined lists
+      A.users.forEach(u=>{
+        if(u.joined)u.joined=u.joined.filter(jid=>jid!==id);
+      });
+      saveUsers();
+    }
+    fbDelTn(id).catch(()=>{});
+    const idx=A.tns.findIndex(x=>x.id===id);
+    if(idx>=0)A.tns.splice(idx,1);
+    saveTns();renderTn();renderDash();populateUListTn();toast('🗑 Deleted');
+  });
+}
+function openTnEdit(id){
+  const t=A.tns.find(x=>x.id===id);if(!t)return;
+  // Remove old edit modal if exists
+  const old=document.getElementById('tn-edit-modal');if(old)old.remove();
+  const modal=document.createElement('div');
+  modal.id='tn-edit-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML=`
+    <div style="background:var(--c1);border:1px solid rgba(240,180,41,0.3);border-radius:16px;padding:24px;width:100%;max-width:360px;">
+      <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--gold);margin-bottom:16px;">✏ Edit Room — ${t.title}</div>
+      <div class="fg"><label>Room ID</label><input type="text" class="fi" id="tnr-id" value="${t.roomId||''}" placeholder="Enter room ID"></div>
+      <div class="fg"><label>Room Password</label><input type="text" class="fi" id="tnr-pass" value="${t.roomPass||''}" placeholder="Enter room password"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn bN" onclick="document.getElementById('tn-edit-modal').remove()">Cancel</button>
+        <button class="btn bg" onclick="saveTnEdit(${id})">💾 Save & Notify</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveTnEdit(id){
+  const t=A.tns.find(x=>x.id===id);if(!t)return;
+  const roomId=document.getElementById('tnr-id').value.trim();
+  const roomPass=document.getElementById('tnr-pass').value.trim();
+  t.roomId=roomId;t.roomPass=roomPass;
+  saveTns();renderTn();
+  document.getElementById('tn-edit-modal').remove();
+  if(t.roomId&&t.roomPass){
+    sendRoomNotifToJoined(t.id,t.title,t.roomId,t.roomPass);
+    toast('✅ Room updated & notifications sent!');
+  } else {
+    toast('✅ Tournament updated!');
+  }
+}
+// ═══ TOURNAMENT PLAYERS ═══
+function openTnPlayers(tnId){
+  const t=A.tns.find(x=>x.id===tnId);if(!t)return;
+  const joined=getUsersJoinedTournament(tnId);
+  document.getElementById('tnp-card').innerHTML=`
+    <div class="ch">
+      <div class="ct">👥 Players — ${t.title}</div>
+      <div>${bdg(t.status)}</div>
+    </div>
+    <div class="cb">
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">${joined.length}/${t.cap} players joined · Entry: Rs.${t.entry} · Prize: Rs.${t.pool}</div>
+      ${joined.length?joined.map((u,i)=>`
+        <div class="pl-item">
+          <div class="pl-num">${i+1}</div>
+          <div class="av" style="width:32px;height:32px;">${(u.username||'?')[0]}</div>
+          <div style="flex:1;">
+            <div class="pl-name">${u.username}</div>
+            <div class="pl-ign">${u.name||''} · ${u.gameId?'ID: '+u.gameId:''}</div>
+          </div>
+          <div style="font-size:11px;color:var(--gray);">${u.phone||''}</div>
+        </div>`).join(''):
+        '<div class="empty"><div class="empty-i">👥</div><div class="empty-t">No players joined yet</div></div>'}
+      ${t.roomId?`<div style="background:var(--gold-dim);border:1px solid rgba(240,180,41,.2);border-radius:var(--r);padding:12px;margin-top:14px;"><div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Room Details</div><div style="font-family:var(--mono);font-size:13px;">ID: ${t.roomId} &nbsp;|&nbsp; Pass: ${t.roomPass||'—'}</div></div>`:''}
+    </div>`;
+  nav('s-tnp');
+}
+
+// ═══ USER LIST by TOURNAMENT ═══
+function populateUListTn(){
+  const sel=document.getElementById('ul-tn');if(!sel)return;
+  sel.innerHTML=A.tns.length?A.tns.map(t=>`<option value="${t.id}">${t.title} [${t.status}]</option>`).join(''):'<option>No tournaments</option>';
+  renderUserList();
+}
+function renderUserList(){
+  const tnId=parseInt(document.getElementById('ul-tn')?.value);
+  const t=A.tns.find(x=>x.id===tnId);
+  const cont=document.getElementById('ul-content');if(!cont)return;
+  if(!t){cont.innerHTML='<div style="color:var(--dim);">Select a tournament</div>';return;}
+  const joined=getUsersJoinedTournament(tnId);
+  cont.innerHTML=joined.length?`
+    <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">${joined.length} player(s) joined this tournament</div>
+    <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Mobile</th><th>Game ID</th><th>Balance</th><th>Status</th></tr></thead>
+    <tbody>${joined.map((u,i)=>`<tr>
+      <td style="color:var(--dim);">${i+1}</td>
+      <td><div class="uc"><div class="av">${(u.username||'?')[0]}</div><div><div class="un">${u.username}</div><div class="us">${u.name||''}</div></div></div></td>
+      <td style="font-size:12px;">${u.phone||''}</td>
+      <td style="font-size:12px;">${u.gameId||'—'}</td>
+      <td><span style="color:var(--gold);font-weight:700;">Rs.${u.balance||0}</span></td>
+      <td>${bdg(u.status||'active')}</td>
+    </tr>`).join('')}</tbody></table></div>`:
+    '<div class="empty"><div class="empty-i">👥</div><div class="empty-t">No players joined this tournament</div></div>';
+}
+
+// ═══ NOTIFICATIONS ═══
+function toggleNfU(){
+  const v=document.getElementById('nf-to').value;
+  document.getElementById('nf-ur').style.display=v==='single'?'flex':'none';
+  document.getElementById('nf-ur').style.flexDirection='column';
+}
+function sendNotif(){
+  const to=document.getElementById('nf-to').value;
+  const ti=document.getElementById('nf-ti').value.trim();
+  const msg=document.getElementById('nf-msg').value.trim();
+  if(!ti||!msg){toast('Fill title and message','var(--red)');return;}
+  if(to==='all'){
+    A.users.forEach(u=>addUN(u,ti,msg));
+    A.notifLog.unshift({to:`All (${A.users.length})`,ti,msg,date:now()});
+    toast(`📢 Sent to all ${A.users.length} users`);
+  } else {
+    const uid=parseInt(document.getElementById('nf-u').value);
+    const u=A.users.find(x=>x.id===uid);
+    if(u){addUN(u,ti,msg);A.notifLog.unshift({to:u.username,ti,msg,date:now()});}
+    toast(`🔔 Sent to ${u?.username}`);
+  }
+  saveUsers();saveNotifLog();
+  document.getElementById('nf-ti').value='';document.getElementById('nf-msg').value='';
+  renderNotifLog();
+}
+function sendTo(uid){nav('s-notif');document.getElementById('nf-to').value='single';toggleNfU();setTimeout(()=>document.getElementById('nf-u').value=uid,50);}
+function renderNotifLog(){
+  const el=document.getElementById('nf-log');if(!el)return;
+  el.innerHTML=A.notifLog.length?A.notifLog.map(n=>`
+    <div class="nr"><div class="nr-dot"></div><div><div class="nr-t">${n.ti}</div><div class="nr-s">${n.msg}</div><div class="nr-m">To: <span style="color:var(--gold);">${n.to}</span> · ${n.date}</div></div></div>`).join(''):
+    '<div class="empty"><div class="empty-i">🔔</div><div class="empty-t">No notifications sent yet</div></div>';
+}
+function clearNotifLog(){
+  showConfirm('Clear Log','Delete all notification logs?',()=>{
+    A.notifLog=[];saveNotifLog();renderNotifLog();toast('🗑 Log cleared');
+  });
+}
+// ═══ SETTINGS ═══
+function changeAdminPw(){
+  const c=document.getElementById('ap-c').value;
+  const n=document.getElementById('ap-n').value;
+  const co=document.getElementById('ap-co').value;
+  const err=document.getElementById('ap-err');
+  err.classList.remove('show');
+  if(c!==A.creds.pass){err.textContent='❌ Wrong current password';err.classList.add('show');return;}
+  if(n.length<6){err.textContent='❌ Min 6 characters';err.classList.add('show');return;}
+  if(n!==co){err.textContent='❌ Passwords do not match';err.classList.add('show');return;}
+  A.creds.pass=n;['ap-c','ap-n','ap-co'].forEach(id=>document.getElementById(id).value='');
+  saveAdminCreds();toast('✅ Admin password updated!');
+}
+function savePaymentNumbers(){
+  const pm={
+    easypaisa:{name:'EasyPaisa',num:document.getElementById('ep-n').value.trim(),holder:document.getElementById('ep-nm').value.trim()},
+    jazzcash:{name:'JazzCash',num:document.getElementById('jc-n').value.trim(),holder:document.getElementById('jc-nm').value.trim()},
+    sadapay:{name:'SadaPay',num:document.getElementById('sp-n').value.trim(),holder:document.getElementById('sp-nm').value.trim()}
+  };
+  localStorage.setItem('gz_pm',JSON.stringify(pm));
+  fbSaveMeta('payments',pm).catch(()=>{});
+  toast('✅ Payment numbers saved!');
+}
+function renderPlat(){
+  const el=document.getElementById('plat-ctrl');if(!el)return;
+  const cfg=JSON.parse(localStorage.getItem('gz_cfg')||'{"reg":true,"maint":false,"dep":true,"wd":true,"minDep":100,"minWd":500}');
+  el.innerHTML=`
+    <div class="tog-row"><div class="tog-info"><h4>New Registrations</h4><p>Allow new signups</p></div><label class="tog"><input type="checkbox" id="cfg-reg" ${cfg.reg?'checked':''}><span class="tog-sl"></span></label></div>
+    <div class="tog-row"><div class="tog-info"><h4>Maintenance Mode</h4><p>Show maintenance to users</p></div><label class="tog"><input type="checkbox" id="cfg-maint" ${cfg.maint?'checked':''}><span class="tog-sl"></span></label></div>
+    <div class="tog-row"><div class="tog-info"><h4>Deposits Enabled</h4><p>Allow deposit requests</p></div><label class="tog"><input type="checkbox" id="cfg-dep" ${cfg.dep?'checked':''}><span class="tog-sl"></span></label></div>
+    <div class="tog-row"><div class="tog-info"><h4>Withdrawals Enabled</h4><p>Allow withdrawal requests</p></div><label class="tog"><input type="checkbox" id="cfg-wd" ${cfg.wd?'checked':''}><span class="tog-sl"></span></label></div>
+    <div style="margin-top:12px;" class="fg"><label>Min Deposit (PKR)</label><input type="number" class="fi" id="cfg-minDep" value="${cfg.minDep}"></div>
+    <div class="fg"><label>Min Withdrawal (PKR)</label><input type="number" class="fi" id="cfg-minWd" value="${cfg.minWd}"></div>
+    <button class="btn bg" style="margin-top:4px;" onclick="savePlat()">Save</button>`;
+}
+function savePlat(){
+  const cfg={
+    reg:document.getElementById('cfg-reg').checked,
+    maint:document.getElementById('cfg-maint').checked,
+    dep:document.getElementById('cfg-dep').checked,
+    wd:document.getElementById('cfg-wd').checked,
+    minDep:parseInt(document.getElementById('cfg-minDep').value)||100,
+    minWd:parseInt(document.getElementById('cfg-minWd').value)||500
+  };
+  localStorage.setItem('gz_cfg',JSON.stringify(cfg));
+  fbSaveMeta('platform',cfg).catch(()=>{});
+  toast('✅ Settings saved!');
+}
+// ═══ HELPERS ═══
+function bdg(s){
+  const m={
+    active:'b-active ✅',suspended:'b-suspended ⚠',blocked:'b-blocked 🚫',
+    pending:'b-pending ⏳',approved:'b-approved ✅',rejected:'b-rejected ❌',
+    upcoming:'b-upcoming ⏰',live:'b-live 🟢',completed:'b-completed 🏁',
+    refunded:'b-delay 💸'
+  };
+  const parts=(m[s]||'b-completed '+s).split(' ');
+  return `<span class="b ${parts[0]}">${parts[1]} ${s.charAt(0).toUpperCase()+s.slice(1)}</span>`;
+}
+function addUN(u,ti,msg){
+  if(!u.notifs)u.notifs=[];
+  u.notifs.unshift({id:Date.now(),title:ti,msg,time:now(),read:false,type:'info'});
+}
+function addAct(txt,col='var(--gray)'){
+  A.activity.unshift({txt,time:'just now',col});
+  if(A.activity.length>20)A.activity.pop();
+  saveActivity();
+  if(document.getElementById('s-dash').classList.contains('active'))renderDash();
+}
+function now(){return new Date().toLocaleString('en-PK',{hour12:true,hour:'numeric',minute:'2-digit',day:'numeric',month:'short'});}
+
+let _cb=null;
+function showConfirm(t,m,cb){
+  document.getElementById('c-title').textContent=t;
+  document.getElementById('c-msg').textContent=m;
+  _cb=cb;
+  document.getElementById('confirm').classList.add('show');
+  document.getElementById('c-ok').onclick=()=>{closeConfirm();if(_cb)_cb();};
+}
+function closeConfirm(){document.getElementById('confirm').classList.remove('show');}
+
+function toast(msg,col='var(--green)'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=col;t.style.display='block';t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.style.display='none',300);},3200);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeConfirm();});
+</script>
+</body>
+</html>
